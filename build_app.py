@@ -86,7 +86,7 @@ def build_standalone_executable():
 def print_installer_guidelines(app_name, binary_path):
     """Outputs instructions for compiling the portable binary into official installers (Inno Setup / DMG)."""
     print("\n" + "="*60)
-    print("🎓 PACKAGING YOUR BINARY INTO OS INSTALLERS")
+    print("PACKAGING YOUR BINARY INTO OS INSTALLERS")
     print("="*60)
     
     if sys.platform == "win32":
