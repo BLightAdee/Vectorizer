@@ -1,6 +1,6 @@
 # Vectorizer Studio ⚡
 
-A high-performance, native (non-Electron, non-Tauri) cross-platform desktop application for accurately converting raster images and PDF documents into high-fidelity, scalable SVG files. 
+A high-performance, native cross-platform desktop application for accurately converting raster images and PDF documents into high-fidelity, scalable SVG files. 
 
 Powered under the hood by **vtracer** (a high-speed, Rust-compiled vectorization engine) and **PyMuPDF** (a pixel-perfect document rendering and vector tree parsing compiler).
 
