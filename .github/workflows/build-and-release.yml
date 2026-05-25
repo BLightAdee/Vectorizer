@@ -1,0 +1,112 @@
+name: Build and Release Standalone Apps
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*' # Trigger on version tags (e.g., v1.0.0)
+  workflow_dispatch: # Enable manual builds from the GitHub UI at any time
+
+permissions:
+  contents: write # Crucial for creating draft releases and uploading assets
+
+jobs:
+  build:
+    name: Build Standalone Executable
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            artifact_name: VectorizerStudio.exe
+            output_path: dist/VectorizerStudio.exe
+          - os: macos-latest
+            artifact_name: VectorizerStudio-macOS.zip
+            output_path: dist/VectorizerStudio-macOS.zip
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' # High stability for wheels and PyInstaller compiler
+
+      - name: Install System Dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          # Ensure zip utility is available
+          brew install zip || true
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install customtkinter PyMuPDF vtracer pillow pyinstaller
+
+      - name: Compile Standing Executable
+        run: |
+          python build_app.py
+
+      - name: Compress macOS Application Bundle
+        if: matrix.os == 'macos-latest'
+        run: |
+          # macOS .app is a folder, zip it to make it a single downloadable asset
+          cd dist
+          zip -r VectorizerStudio-macOS.zip VectorizerStudio.app
+          cd ..
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: VectorizerStudio-${{ matrix.os }}
+          path: ${{ matrix.output_path }}
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') # Only run this job if a tag is pushed
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Windows Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VectorizerStudio-windows-latest
+          path: release-assets
+
+      - name: Download macOS Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VectorizerStudio-macos-latest
+          path: release-assets
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-assets/VectorizerStudio.exe
+            release-assets/VectorizerStudio-macOS.zip
+          draft: false
+          prerelease: false
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Vectorizer Studio Release `${{ github.ref_name }}` ⚡
+
+            Automated cross-platform build release containing high-fidelity raster/PDF to SVG converters.
+
+            ### Standalone Downloads:
+            * **Windows (64-bit)**: Download `VectorizerStudio.exe` (portable binary, no install required).
+            * **macOS (Intel/Apple Silicon)**: Download `VectorizerStudio-macOS.zip` (extract and open `VectorizerStudio.app`).
+
+            > [!WARNING]
+            > **Disclaimer**: This project is 100% vibe-coded. It is not maintained, and code integrity is not guaranteed. Use at your own discretion.
+          token: ${{ secrets.GITHUB_TOKEN }}

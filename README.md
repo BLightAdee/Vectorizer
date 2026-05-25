@@ -4,6 +4,9 @@ A high-performance, native (non-Electron, non-Tauri) cross-platform desktop appl
 
 Powered under the hood by **vtracer** (a high-speed, Rust-compiled vectorization engine) and **PyMuPDF** (a pixel-perfect document rendering and vector tree parsing compiler).
 
+> [!WARNING]
+> **Disclaimer**: This project is 100% vibe-coded. I do not plan on maintaining it, nor do I guarantee the integrity, safety, or correctness of any code inside this repository. Use entirely at your own discretion.
+
 ---
 
 ## 🌟 Key Features
