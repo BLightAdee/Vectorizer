@@ -749,13 +749,13 @@ class VectorizerApp(ctk.CTk):
         """Controls switching between landing zone and queue list views based on queue counts."""
         count = len(self.queue_list)
         if count == 0:
-            self.queue_scroll_frame.pack_forget()
+            self.queue_scroll_frame.grid_forget()
             self.landing_frame.grid(row=1, column=0, sticky="nsew", padx=25, pady=10)
             self.global_status_label.configure(text="0 files queued in active session")
             self.global_progress.set(0.0)
         else:
             self.landing_frame.grid_forget()
-            self.queue_scroll_frame.pack(fill="both", expand=True, padx=25, pady=10)
+            self.queue_scroll_frame.grid(row=1, column=0, sticky="nsew", padx=25, pady=10)
             self.global_status_label.configure(text=f"{count} file{'s' if count > 1 else ''} queued • Ready to Vectorize")
 
     def select_queue_item(self, q_id):
